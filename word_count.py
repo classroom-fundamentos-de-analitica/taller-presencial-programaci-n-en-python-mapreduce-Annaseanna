@@ -13,26 +13,21 @@
 #     ('text2.txt'. 'hypotheses.')
 #   ]
 #
-
-import fileinput
 import glob
-
+import os
+import fileinput
 def load_input(input_directory):
 
-    filenames = glob.glob(input_directory + "/*.*")
-
+    filenames = glob.glob(input_directory + '/*.*')
     sequence = []
-    
+
     with fileinput.input(files=filenames) as f:
         for line in f:
-            sequence.append(
-                (f.filename(),line)
-            )
+            sequence.append((f.filename(),line))
 
-    return(sequence)
+    return sequence
 
-
-
+    print(lines)
 
 #
 # Escriba una función llamada maper que recibe una lista de tuplas de la
@@ -48,12 +43,10 @@ def load_input(input_directory):
 #
 def mapper(sequence):
     new_sequence = [
-        (word.lower().replace(".","").replace(",",""),1)
-        for _, line in sequence 
+        (word.lower().replace('.','').replace(',',''),1)
+        for _, line in sequence
         for word in line.split()]
     return new_sequence
-
-
 
 #
 # Escriba la función shuffle_and_sort que recibe la lista de tuplas entregada
@@ -69,10 +62,9 @@ def mapper(sequence):
 def shuffle_and_sort(sequence):
     sequence = sorted(
         sequence,
-        key = lambda x: x[0]
+        key=lambda x:x[0]
     )
     return sequence
-
 
 
 #
@@ -81,18 +73,23 @@ def shuffle_and_sort(sequence):
 # ejemplo, la reducción indica cuantas veces aparece la palabra analytics en el
 # texto.
 #
-
-from itertools import groupby
-
+import itertools
 def reducer(sequence):
     new_sequence = []
-    for k, g in groupby(sequence, lambda x: x[0]):
-        key=k
-        values =  sum(x[1] for x in g)
+    for k, g in itertools.groupby(sequence, lambda x:x[0] ):
+        key = k
+        value = sum(x[1] for x in g)
         new_sequence.append(
-            (key,values)
+            (key, value)
         )
     return new_sequence
+
+sequence = load_input('input/')
+sequence = mapper(sequence)
+sequence = shuffle_and_sort(sequence)
+sequence = reducer(sequence)
+
+print(sequence)
 
 
 
@@ -103,11 +100,11 @@ def reducer(sequence):
 import os.path
 def create_ouptput_directory(output_directory):
     if os.path.isdir(output_directory):
-        raise Exception ("El directorio ya existe")
+        raise Exception('El directorio ya existe')
     os.mkdir(output_directory)
 
 
-""" print(sequence) """
+
 #
 # Escriba la función save_output, la cual almacena en un archivo de texto llamado
 # part-00000 el resultado del reducer. El archivo debe ser guardado en el
@@ -115,36 +112,33 @@ def create_ouptput_directory(output_directory):
 # Adicionalmente, el archivo debe contener una tupla por línea, donde el primer
 # elemento es la clave y el segundo el valor. Los elementos de la tupla están
 # separados por un tabulador.
-#
-def save_output(output_directory, sequence):
-    filename=os.path.join(output_directory, "part-00000")
-    with open(filename, "w") as f:
-        for key, value in sequence:
-            f.write(f"{key}\t{value}\n")
-    
+#6000
 
+def save_output(output_directory, sequence):
+    filename = os.path.join(output_directory, 'part-00000')
+    with open(filename, 'w') as f:
+        for key, value in sequence:
+            f.write(f'{key}\t{value}\n')
 
 #
 # La siguiente función crea un archivo llamado _SUCCESS en el directorio
 # entregado como parámetro.
 #
 def create_marker(output_directory):
-    with open(os.path.join(output_directory,"_SUCCESS"), "w") as f:
-        f.write("")
-
+    with open(os.path.join(output_directory, '_SUCCESS'),'w') as f:
+        f.write('')
 
 #
 # Escriba la función job, la cual orquesta las funciones anteriores.
 #
 def job(input_directory, output_directory):
-    sequence = load_input("input/")
-    sequence=mapper(sequence)
+    sequence = load_input(input_directory)
+    sequence = mapper(sequence)
     sequence = shuffle_and_sort(sequence)
-    sequence = reducer (sequence)
-    create_ouptput_directory("output/")
-    save_output("output", sequence)
-    create_marker("output")
-    
+    sequence = reducer(sequence)
+    create_ouptput_directory(output_directory)
+    save_output(output_directory, sequence)
+    create_marker(output_directory)
 
 
 if __name__ == "__main__":
